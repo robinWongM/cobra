@@ -733,3 +733,22 @@ func (c *Command) HelpTemplate() string {
 
 {{end}}{{if or .Runnable .HasSubCommands}}{{.UsageString}}{{end}}`
 }
+
+// UsageString returns usage string.
+func (c *Command) UsageString() string {
+	// Storing normal writers
+	tmpOutput := c.outWriter
+	tmpErr := c.errWriter
+
+	bb := new(bytes.Buffer)
+	c.outWriter = bb
+	c.errWriter = bb
+
+	c.Usage()
+
+	// Setting things back to normal
+	c.outWriter = tmpOutput
+	c.errWriter = tmpErr
+
+	return bb.String()
+}
