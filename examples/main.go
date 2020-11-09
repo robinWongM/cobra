@@ -1,11 +1,3 @@
-# cobra
-[![GoDoc](https://img.shields.io/badge/GoDoc-Reference-blue?logo=go)](https://pkg.go.dev/github.com/robinWongM/cobra?tab=doc)
-
-A simple "replacement" for spf13/cobra, and it just works!
-
-# Example
-
-```golang
 package main
 
 import (
@@ -32,8 +24,3 @@ func main() {
 
 	rootCmd.Execute()
 }
-```
-
-# Acknowledgements
-
-This repository contains (lots of) code from [spf13/cobra](https://github.com/spf13/cobra), which is licensed under Apache License, Version 2.0.
