@@ -222,6 +222,11 @@ func (c *Command) InitDefaultHelpFlag() {
 	}
 }
 
+// Runnable determines if the command is itself runnable.
+func (c *Command) Runnable() bool {
+	return c.Run != nil || c.RunE != nil
+}
+
 func (c *Command) execute(a []string) (err error) {
 	if c == nil {
 		return fmt.Errorf("Called Execute() on a nil Command")
@@ -250,6 +255,10 @@ func (c *Command) execute(a []string) (err error) {
 	}
 
 	if helpVal {
+		return flag.ErrHelp
+	}
+
+	if !c.Runnable() {
 		return flag.ErrHelp
 	}
 
@@ -299,26 +308,26 @@ func (c *Command) ExecuteC() (cmd *Command, err error) {
 	}
 
 	err = cmd.execute(flags)
-	// if err != nil {
-	// 	// Always show help if requested, even if SilenceErrors is in
-	// 	// effect
-	// 	if err == flag.ErrHelp {
-	// 		cmd.HelpFunc()(cmd, args)
-	// 		return cmd, nil
-	// 	}
+	if err != nil {
+		// Always show help if requested, even if SilenceErrors is in
+		// effect
+		if err == flag.ErrHelp {
+			cmd.HelpFunc()(cmd, args)
+			return cmd, nil
+		}
 
-	// 	// If root command has SilentErrors flagged,
-	// 	// all subcommands should respect it
-	// 	if !cmd.SilenceErrors && !c.SilenceErrors {
-	// 		c.PrintErrln("Error:", err.Error())
-	// 	}
+		// // If root command has SilentErrors flagged,
+		// // all subcommands should respect it
+		// if !cmd.SilenceErrors && !c.SilenceErrors {
+		// 	c.PrintErrln("Error:", err.Error())
+		// }
 
-	// 	// If root command has SilentUsage flagged,
-	// 	// all subcommands should respect it
-	// 	if !cmd.SilenceUsage && !c.SilenceUsage {
-	// 		c.Println(cmd.UsageString())
-	// 	}
-	// }
+		// If root command has SilentUsage flagged,
+		// all subcommands should respect it
+		if !cmd.SilenceUsage && !c.SilenceUsage {
+			c.Println(cmd.UsageString())
+		}
+	}
 	return cmd, err
 }
 
