@@ -13,7 +13,7 @@ func executeCommand(c *Command, args ...string) (string, error) {
 	c.SetOut(buf)
 	c.SetErr(buf)
 	c.SetArgs(args)
-	_, err := c.Execute()
+	_, err := c.ExecuteC()
 
 	return buf.String(), err
 }
