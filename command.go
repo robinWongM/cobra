@@ -34,6 +34,11 @@ type Command struct {
 	// RunE: Run but returns an error.
 	RunE func(cmd *Command, args []string) error
 
+	// SilenceUsage is an option to silence usage when an error occurs.
+	// We didn't, however, implement it in this simplified version of cobra.
+	// Just for compatibility with hugo.
+	SilenceUsage bool
+
 	// commands is the list of commands supported by this program.
 	commands []*Command
 	// parent is a parent command for this command.
@@ -333,8 +338,10 @@ func (c *Command) Name() string {
 }
 
 // AddCommand adds one or more commands to this parent command.
-func (c *Command) AddCommand(childCmd *Command) {
-	c.commands = append(c.commands, childCmd)
+func (c *Command) AddCommand(childCmd ...*Command) {
+	for _, cmd := range childCmd {
+		c.commands = append(c.commands, cmd)
+	}
 }
 
 // Flags returns the complete FlagSet that applies
@@ -499,4 +506,16 @@ func (c *Command) CommandPath() string {
 		return c.Parent().CommandPath() + " " + c.Name()
 	}
 	return c.Name()
+}
+
+// SetGlobalNormalizationFunc sets a normalization function to all flag sets and also to child commands.
+// The user should not have a cyclic dependency on commands.
+func (c *Command) SetGlobalNormalizationFunc(n func(f *flag.FlagSet, name string) flag.NormalizedName) {
+	c.Flags().SetNormalizeFunc(n)
+	c.PersistentFlags().SetNormalizeFunc(n)
+	c.globNormFunc = n
+
+	for _, command := range c.commands {
+		command.SetGlobalNormalizationFunc(n)
+	}
 }
