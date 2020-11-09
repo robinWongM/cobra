@@ -25,6 +25,9 @@ type Command struct {
 	// RunE: Run but returns an error.
 	RunE func(cmd *Command, args []string) error
 
+	// args is actual args parsed from flags.
+	args []string
+
 	// inReader is a reader defined by the user that replaces stdin
 	inReader io.Reader
 	// outWriter is a writer defined by the user that replaces stdout
@@ -34,7 +37,7 @@ type Command struct {
 }
 
 func (c *Command) Execute() error {
-	c.Run(c, []string{})
+	c.Run(c, c.args)
 	return nil
 }
 
@@ -44,4 +47,8 @@ func (c *Command) SetOut(newOut io.Writer) {
 
 func (c *Command) SetErr(newErr io.Writer) {
 	c.errWriter = newErr
+}
+
+func (c *Command) SetArgs(args []string) {
+	c.args = args
 }
